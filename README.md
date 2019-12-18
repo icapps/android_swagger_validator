@@ -1,6 +1,10 @@
 # Swagger validator for kotlin models
 Detekt plugin that validates a swagger spec with the models defined in your code
 
+Versions:
+* Plugin: [![Download](https://api.bintray.com/packages/icapps/maven/swaggervalidator-detekt/images/download.svg) ](https://bintray.com/icapps/maven/swaggervalidator-detekt/_latestVersion)
+* Runtime: [ ![Download](https://api.bintray.com/packages/icapps/maven/swaggervalidator-runtime/images/download.svg) ](https://bintray.com/icapps/maven/swaggervalidator-runtime/_latestVersion)
+
 ### Configuration:
 ##### Step 1: Update build.gradle
 ```groovy
