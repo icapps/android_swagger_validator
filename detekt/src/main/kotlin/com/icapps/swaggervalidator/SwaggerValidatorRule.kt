@@ -34,6 +34,20 @@ class SwaggerValidatorRule() : Rule() {
         Debt.TWENTY_MINS
     )
 
+    private val modelNeedsPrimaryConstructor = Issue(
+        "ModelNeedsPrimaryConstructor",
+        Severity.Defect,
+        "This rules verifies that all models have a primary constructor",
+        Debt.TWENTY_MINS
+    )
+
+    private val swaggerClassNotFound = Issue(
+        "SwaggerModelNotFound",
+        Severity.Defect,
+        "This rules verifies that all model has a swagger definition",
+        Debt.TWENTY_MINS
+    )
+
     private val swaggerFieldNotFound = Issue(
         "SwaggerFieldNotDeclared",
         Severity.Defect,
@@ -92,7 +106,7 @@ class SwaggerValidatorRule() : Rule() {
             if (constructor == null) {
                 report(
                     CodeSmell(
-                        issue,
+                        modelNeedsPrimaryConstructor,
                         Entity.from(klass),
                         "No primary constructor defined for model class!"
                     )
@@ -107,7 +121,7 @@ class SwaggerValidatorRule() : Rule() {
             if (swaggerDefinition == null) {
                 report(
                     CodeSmell(
-                        issue,
+                        swaggerClassNotFound,
                         Entity.from(swaggerModel.navigationElement),
                         "'${swaggerModelName}' model class not found in swagger"
                     )
@@ -122,7 +136,7 @@ class SwaggerValidatorRule() : Rule() {
                     report(
                         CodeSmell(
                             swaggerFieldNotFound,
-                            buildNamedEntity(klass, "${swaggerProperty.name}"),
+                            buildNamedEntity(klass, swaggerProperty.name),
                             "'${swaggerProperty.name}' property defined in swagger not found in model!"
                         )
                     )
