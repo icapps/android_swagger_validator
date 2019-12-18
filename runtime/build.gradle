@@ -1,0 +1,67 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id "com.jfrog.bintray" version "1.8.4"
+}
+
+def artifactVersion = '0.1.0'
+def artifactGroup = 'com.icapps.swaggervalidator'
+def artifactName = "swaggervalidator-runtime"
+
+group "$artifactGroup"
+version "$artifactVersion"
+
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    pkg {
+        repo = 'maven'
+        name = "$artifactName"
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/icapps/android_swagger_validator'
+
+        version {
+            name = "$artifactVersion"
+            desc = "Runtime for the android swagger validator"
+            released = new Date()
+        }
+    }
+    publications = ['MyPublication']
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = artifactName
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Swagger validator - runtime'
+                description = 'Runtime for the swagger validator, annotate your swagger classes!'
+                developers {
+                    developer {
+                        id = 'nicolaverbeeck'
+                        name = 'Nicola Verbeeck'
+                    }
+                    developer {
+                        id = 'maartenvangiel'
+                        name = 'Maarten Van Giel'
+                    }
+                }
+            }
+        }
+    }
+}

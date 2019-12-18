@@ -1,0 +1,3 @@
+rootProject.name = 'SwaggerValidator'
+include 'runtime', 'detekt'
+
