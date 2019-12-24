@@ -16,12 +16,7 @@
 
 package com.icapps.swaggervalidator.parser.v2
 
-import com.icapps.swaggervalidator.parser.SwaggerDefinition
-import com.icapps.swaggervalidator.parser.SwaggerFile
-import com.icapps.swaggervalidator.parser.SwaggerParser
-import com.icapps.swaggervalidator.parser.SwaggerProperty
-import com.icapps.swaggervalidator.parser.SwaggerPropertyType
-import com.icapps.swaggervalidator.parser.SwaggerPropertyTypes
+import com.icapps.swaggervalidator.parser.*
 import io.swagger.models.properties.ArrayProperty
 import io.swagger.models.properties.Property
 import io.swagger.models.properties.RefProperty
@@ -34,16 +29,24 @@ class SwaggerV2Parser : SwaggerParser {
     override fun parse(reader: Reader): SwaggerFile {
         val swagger = io.swagger.parser.SwaggerParser().parse(reader.readText())
 
-        val definitions = swagger.definitions.map { (name, model) ->
-            val properties = model.properties.map { (propertyName, property) ->
+        val definitions = swagger.definitions.mapNotNull { (name, model) ->
+            val properties = model.properties?.mapNotNull { (propertyName, property) ->
 
-                SwaggerProperty(
-                    name = propertyName,
-                    type = buildPropertyType(property),
-                    required = property.required
-                )
+                try {
+                    SwaggerProperty(
+                        name = propertyName,
+                        type = buildPropertyType(property),
+                        required = property.required
+                    )
+                } catch (e: Throwable) {
+                    println("Failed to parse swagger definition '$name' -> '$propertyName': ${e.message}")
+                    null
+                }
             }
-
+            if (properties == null || properties.isEmpty()) {
+                println("Skipping '$name', no properties defined")
+                return@mapNotNull null
+            }
             SwaggerDefinition(name = name, properties = properties)
         }
 
@@ -63,10 +66,16 @@ class SwaggerV2Parser : SwaggerParser {
             "boolean" -> SwaggerPropertyTypes.BOOLEAN
             "array" -> SwaggerPropertyTypes.ARRAY
             "ref" -> SwaggerPropertyTypes.REF
-            else -> throw IOException("Unknown property ${property.type}")
+            else -> throw IOException("Unknown property type: ${property.type}")
         }
 
-        return SwaggerPropertyType(type = type, referredType = referredType, format = format, innerType = arrayType, enumValues = enums)
+        return SwaggerPropertyType(
+            type = type,
+            referredType = referredType,
+            format = format,
+            innerType = arrayType,
+            enumValues = enums
+        )
     }
 
 }
